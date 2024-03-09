@@ -17,18 +17,21 @@ export async function launchRegistry() {
   const _registry = express();
   _registry.use(express.json());
   _registry.use(bodyParser.json());
+  let getNodeRegistryBody: GetNodeRegistryBody = { nodes: [] };
 
   // TODO implement the status route
   _registry.get("/status", (req, res) => {
     res.send("live");
   });
 
-  // You should create an HTTP POST route called /registerNode which allows for nodes to register themselves on the registry.
-  _registry.post("/registerNode", (req: Request<{}, {}, RegisterNodeBody>, res) => {
+  _registry.get("/getNodeRegistry", (req, res) => {
+    res.status(200).json(getNodeRegistryBody);
+  });
+
+  _registry.post("/registerNode", (req: Request<RegisterNodeBody>, res: Response) => {
     const { nodeId, pubKey } = req.body;
-    const nodes = _registry.locals.nodes as Node[];
-    nodes.push({ nodeId, pubKey });
-    res.send({ result: "ok" });
+    getNodeRegistryBody.nodes.push({ nodeId, pubKey });
+    res.status(200).json({ result: "ok" });
   });
 
   const server = _registry.listen(REGISTRY_PORT, () => {
